@@ -1,6 +1,7 @@
 ﻿@page "/weather"
+@rendermode InteractiveServer
 @attribute [StreamRendering]
-
+@inject IJSRuntime JS
 <PageTitle>Weather</PageTitle>
 
 <h1>Weather</h1>
@@ -36,17 +37,32 @@ else
     </table>
 }
 
+<button @onclick="RefreshForecasts" class="btn btn-outline-primary">Refresh</button>
+
 @code {
     private WeatherForecast[]? forecasts;
 
     protected override async Task OnInitializedAsync()
+    {
+        forecasts = await LoadForecasts();
+    }
+
+    private async Task RefreshForecasts()
+    {
+        // Console.WriteLine("button clicked");
+        // await JS.InvokeVoidAsync("console.log", "Button clicked!");
+
+        forecasts = await LoadForecasts();
+    }
+
+    private async Task<WeatherForecast[]?> LoadForecasts()
     {
         // Simulate asynchronous loading to demonstrate streaming rendering
         await Task.Delay(500);
 
         var startDate = DateOnly.FromDateTime(DateTime.Now);
         var summaries = new[] { "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching" };
-        forecasts = Enumerable.Range(1, 5).Select(index => new WeatherForecast
+        return Enumerable.Range(1, 5).Select(index => new WeatherForecast
         {
             Date = startDate.AddDays(index),
             TemperatureC = Random.Shared.Next(-20, 55),
